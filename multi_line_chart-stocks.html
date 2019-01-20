@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <title>Multi-line Chart | Stocks</title>
+  <script type="text/javascript" src="https://d3js.org/d3.v4.min.js"></script>
+  <style type="text/css">
+  </style>
+</head>
+
+<body>
+  <script type="text/javascript">
+    // 1 - Create SVG
+
+    var margin = {
+      top: 30,
+      right: 30,
+      bottom: 30,
+      left: 50
+    }
+
+    var height = 300
+    var width = 500
+
+    var svg = d3.select("body")
+      .append("svg")
+      .attr("width", width + margin.left + margin.right)
+      .attr("height", height + margin.top + margin.bottom)
+
+    // 2 - Generate data
+
+    d3.csv('stocks.csv', function(error, raw) {
+      raw.forEach(function(d, i) {
+        var parseDate = d3.timeParse("%b %Y");
+        var formatTime = d3.timeFormat("%b %Y")
+        d.price = +d.price;
+        d.date = parseDate(d.date);
+        // console.log(d.date)
+        // console.log(formatTime(d.date))
+      })
+
+      data = raw
+
+      data_separated = [{
+        "symbol": "MSFT",
+        "date": [],
+        "price": []
+      }, {
+        "symbol": "AMZN",
+        "date": [],
+        "price": []
+      }, {
+        "symbol": "IBM",
+        "date": [],
+        "price": []
+      }, {
+        "symbol": "AAPL",
+        "date": [],
+        "price": []
+      }]
+
+      for (var i = 0; i < raw.length; i++) {
+
+        for (var j = 0; j < data_separated.length; j++) {
+          if (data[i].symbol === data_separated[j].symbol) {
+            data_separated[j].date.push(data[i].date)
+            data_separated[j].price.push(data[i].price)
+          }
+        }
+      }
+
+      console.log(data_separated)
+
+      var xScale = d3.scaleTime()
+        .domain([d3.min(data, d => d.date), d3.max(data, d => d.date)])
+        .range([0, width])
+
+      var yScale = d3.scaleLinear()
+        .domain([d3.min(data, d => d.price), d3.max(data, d => d.price)])
+        .range([height + margin.top, margin.top])
+
+      var xAxis = d3.axisBottom()
+        .scale(xScale)
+
+      var yAxis = d3.axisLeft()
+        .scale(yScale)
+
+      var color = d3.scaleOrdinal(d3.schemeCategory20)
+
+      var line = d3.line()
+        //.curve(d3.curveCardinal)
+        .x(function(d, i) {
+          return margin.left + xScale(data_separated[0].date[i])
+        })
+        .y(function(d) {
+          return yScale(d)
+        })
+
+      svg.append("g")
+        .attr("fill", "none")
+        .attr("stroke-width", 2)
+        .selectAll("path")
+        .data(data_separated)
+        .enter()
+        .append("path")
+        .attr("class", "line")
+        .attr("d", d => line(d.price))
+        .attr("stroke", (d, i) => color(i))
+
+      svg.append("g")
+        .selectAll("text")
+        .data(data_separated)
+        .enter()
+        .append("text")
+        .attr("x", 20 + margin.left + 30)
+        .attr("y", (d, i) => margin.top + i * 25)
+        .text(d => d.symbol)
+
+      svg.append("g")
+        .selectAll("rect")
+        .data(data_separated)
+        .enter()
+        .append("rect")
+        .attr("x", 20 + margin.left)
+        .attr("y", (d, i) => margin.top - 5 + i * 25)
+        .attr("width", 20)
+        .attr("height", 2)
+        .attr("fill", (d, i) => color(i))
+
+      svg.append("g")
+        .attr("class", "axis")
+        .attr("transform", "translate(" + (margin.left) + ", " + (height + margin.top) + ")")
+        .call(xAxis)
+
+      svg.append("g")
+        .attr("class", "axis")
+        .attr("transform", "translate(" + (margin.left) + ", 0)")
+        .call(yAxis)
+    });
+  </script>
+</body>
+
+</html>
