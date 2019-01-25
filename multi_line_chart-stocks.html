@@ -16,12 +16,12 @@
     var margin = {
       top: 30,
       right: 30,
-      bottom: 30,
+      bottom: 10,
       left: 50
     }
 
-    var height = 300
-    var width = 500
+    var height = 400 - margin.top - margin.bottom
+    var width = 600 - margin.left - margin.right
 
     var svg = d3.select("body")
       .append("svg")
@@ -33,52 +33,27 @@
     d3.csv('stocks.csv', function(error, raw) {
       raw.forEach(function(d, i) {
         var parseDate = d3.timeParse("%b %Y");
-        var formatTime = d3.timeFormat("%b %Y")
         d.price = +d.price;
         d.date = parseDate(d.date);
-        // console.log(d.date)
-        // console.log(formatTime(d.date))
       })
 
       data = raw
 
-      data_separated = [{
-        "symbol": "MSFT",
-        "date": [],
-        "price": []
-      }, {
-        "symbol": "AMZN",
-        "date": [],
-        "price": []
-      }, {
-        "symbol": "IBM",
-        "date": [],
-        "price": []
-      }, {
-        "symbol": "AAPL",
-        "date": [],
-        "price": []
-      }]
-
-      for (var i = 0; i < raw.length; i++) {
-
-        for (var j = 0; j < data_separated.length; j++) {
-          if (data[i].symbol === data_separated[j].symbol) {
-            data_separated[j].date.push(data[i].date)
-            data_separated[j].price.push(data[i].price)
-          }
-        }
-      }
-
-      console.log(data_separated)
+      var nested_data = d3.nest()
+        .key(function(d) {
+          return d.symbol;
+        })
+        .entries(raw)
 
       var xScale = d3.scaleTime()
-        .domain([d3.min(data, d => d.date), d3.max(data, d => d.date)])
-        .range([0, width])
+        .domain([d3.min(raw, d => d.date), d3.max(raw, d => d.date)])
+        .range([margin.left, width])
 
       var yScale = d3.scaleLinear()
-        .domain([d3.min(data, d => d.price), d3.max(data, d => d.price)])
-        .range([height + margin.top, margin.top])
+        .domain(d3.extent(raw, function(d) {
+          return d.price
+        }))
+        .range([height, margin.top])
 
       var xAxis = d3.axisBottom()
         .scale(xScale)
@@ -89,48 +64,86 @@
       var color = d3.scaleOrdinal(d3.schemeCategory20)
 
       var line = d3.line()
-        //.curve(d3.curveCardinal)
-        .x(function(d, i) {
-          return margin.left + xScale(data_separated[0].date[i])
+        .x(function(d) {
+          return xScale(d.date)
         })
         .y(function(d) {
-          return yScale(d)
+          return yScale(d.price)
         })
 
       svg.append("g")
         .attr("fill", "none")
         .attr("stroke-width", 2)
         .selectAll("path")
-        .data(data_separated)
+        .data(nested_data) //_separated)
         .enter()
         .append("path")
+        .attr("id", d => d.key)
         .attr("class", "line")
-        .attr("d", d => line(d.price))
+        .attr("d", d => line(d.values))
         .attr("stroke", (d, i) => color(i))
-
-      svg.append("g")
-        .selectAll("text")
-        .data(data_separated)
-        .enter()
-        .append("text")
-        .attr("x", 20 + margin.left + 30)
-        .attr("y", (d, i) => margin.top + i * 25)
-        .text(d => d.symbol)
+        .attr("fill", "none")
 
       svg.append("g")
         .selectAll("rect")
-        .data(data_separated)
+        .data(nested_data)
         .enter()
         .append("rect")
-        .attr("x", 20 + margin.left)
-        .attr("y", (d, i) => margin.top - 5 + i * 25)
-        .attr("width", 20)
-        .attr("height", 2)
-        .attr("fill", (d, i) => color(i))
+        .attr('x', 70)
+        .attr('y', function(d, i) {
+          return 10 + i * 25
+        })
+        .attr('width', 10)
+        .attr('height', 10)
+        .attr('fill', function(d, i) {
+          return color(i)
+        })
+      // .on("mouseover", function(d) {
+      //   console.log(d)
+      //   d3.selectAll(".line").attr("opacity", 0.1)
+      //   d3.select("#" + d.key).attr("opacity", 1)
+      // })
+      // .on("mouseleave", function(d) {
+      //   console.log(d)
+      //   d3.selectAll(".line").attr("opacity", 1)
+      //   //d3.select("#" + d.key).attr("opacity", 1)
+      // })
+
+      svg.append("g")
+        .selectAll("text")
+        .data(nested_data)
+        .enter()
+        .append("text")
+        .attr('x', 90)
+        .attr('y', function(d, i) {
+          return 20 + i * 25
+        })
+        .text(d => d.key)
+
+
+      // svg.append("g")
+      //   .selectAll("text")
+      //   .data(data_separated)
+      //   .enter()
+      //   .append("text")
+      //   .attr("x", 20 + margin.left + 30)
+      //   .attr("y", (d, i) => margin.top + i * 25)
+      //   .text(d => d.symbol)
+      //
+      // svg.append("g")
+      //   .selectAll("rect")
+      //   .data(data_separated)
+      //   .enter()
+      //   .append("rect")
+      //   .attr("x", 20 + margin.left)
+      //   .attr("y", (d, i) => margin.top - 5 + i * 25)
+      //   .attr("width", 20)
+      //   .attr("height", 2)
+      //   .attr("fill", (d, i) => color(i))
 
       svg.append("g")
         .attr("class", "axis")
-        .attr("transform", "translate(" + (margin.left) + ", " + (height + margin.top) + ")")
+        .attr("transform", "translate(" + (0) + ", " + (height) + ")")
         .call(xAxis)
 
       svg.append("g")
