@@ -11,8 +11,6 @@
 
 <body>
   <script type="text/javascript">
-    // 1 - Create SVG
-
     var margin = {
       top: 30,
       right: 30,
@@ -27,8 +25,6 @@
       .append("svg")
       .attr("width", width + margin.left + margin.right)
       .attr("height", height + margin.top + margin.bottom)
-
-    // 2 - Generate data
 
     d3.csv('stocks.csv', function(error, raw) {
       raw.forEach(function(d, i) {
@@ -75,7 +71,7 @@
         .attr("fill", "none")
         .attr("stroke-width", 2)
         .selectAll("path")
-        .data(nested_data) //_separated)
+        .data(nested_data)
         .enter()
         .append("path")
         .attr("id", d => d.key)
@@ -98,16 +94,6 @@
         .attr('fill', function(d, i) {
           return color(i)
         })
-      // .on("mouseover", function(d) {
-      //   console.log(d)
-      //   d3.selectAll(".line").attr("opacity", 0.1)
-      //   d3.select("#" + d.key).attr("opacity", 1)
-      // })
-      // .on("mouseleave", function(d) {
-      //   console.log(d)
-      //   d3.selectAll(".line").attr("opacity", 1)
-      //   //d3.select("#" + d.key).attr("opacity", 1)
-      // })
 
       svg.append("g")
         .selectAll("text")
@@ -119,27 +105,6 @@
           return 20 + i * 25
         })
         .text(d => d.key)
-
-
-      // svg.append("g")
-      //   .selectAll("text")
-      //   .data(data_separated)
-      //   .enter()
-      //   .append("text")
-      //   .attr("x", 20 + margin.left + 30)
-      //   .attr("y", (d, i) => margin.top + i * 25)
-      //   .text(d => d.symbol)
-      //
-      // svg.append("g")
-      //   .selectAll("rect")
-      //   .data(data_separated)
-      //   .enter()
-      //   .append("rect")
-      //   .attr("x", 20 + margin.left)
-      //   .attr("y", (d, i) => margin.top - 5 + i * 25)
-      //   .attr("width", 20)
-      //   .attr("height", 2)
-      //   .attr("fill", (d, i) => color(i))
 
       svg.append("g")
         .attr("class", "axis")

@@ -3,7 +3,7 @@
 
 <head>
   <meta charset="utf-8">
-  <title>Bar Chart Variations | Stocks</title>
+  <title>Grouped Bar Chart | Stocks</title>
   <script type="text/javascript" src="https://d3js.org/d3.v4.min.js"></script>
   <style type="text/css">
   </style>
@@ -11,8 +11,6 @@
 
 <body>
   <script type="text/javascript">
-    // 1 - Create SVG
-
     var margin = {
       top: 30,
       right: 90,
@@ -28,8 +26,6 @@
       .attr("width", width + margin.left + margin.right)
       .attr("height", height + margin.top + margin.bottom)
 
-    // 2 - Generate data
-
     d3.csv('stocks.csv', function(error, raw) {
       raw.forEach(function(d, i) {
         var parseDate_raw = d3.timeParse("%b %Y");
@@ -39,8 +35,6 @@
         var formatDate = d3.timeFormat("%Y")
         d.date = +formatDate(d.date)
       })
-
-      console.log(raw)
 
       var nested_data_grouped = d3.nest()
         .key(function(d) {
@@ -56,8 +50,6 @@
         })
         .entries(raw)
 
-      console.log(nested_data_grouped)
-
       var xScale = d3.scaleBand()
         .domain(d3.range(d3.min(raw, d => d.date), d3.max(raw, d => d.date) + 1))
         .range([margin.left, width + margin.left])
@@ -67,13 +59,6 @@
         .range([5, xScale.bandwidth() - 5])
 
       var color = d3.scaleOrdinal(d3.schemeCategory20)
-
-      console.log(d3.max(nested_data_grouped, function(d) {
-        var m = d3.max(d.values, function(e) {
-          return e.value
-        })
-        return m
-      }))
 
       var yScale_grouped = d3.scaleLinear()
         .domain([0, d3.max(nested_data_grouped, function(d) {
@@ -147,62 +132,6 @@
         .attr("class", "axis")
         .attr("transform", "translate(" + (margin.left) + ", 0)")
         .call(yAxis)
-
-      var nested_data_stacked = d3.nest()
-        .key(function(d) {
-          return d.date;
-        })
-        .key(function(d) {
-          return d.symbol;
-        })
-        .rollup(function(x) {
-          return d3.sum(x, function(z) {
-            return z.price
-          })
-        })
-        .entries(raw)
-
-      // console.log(nested_data_stacked)
-
-      var yScale_stacked = d3.scaleLinear()
-        .domain([0, d3.max(nested_data_stacked, function(d) {
-          var m = d3.sum(d.values, function(z) {
-            return z.value
-          })
-          return m
-        })])
-        .range([height, margin.top])
-
-      // d3.max(nested_data_stacked, function(d) {
-      //   return +d.key
-      // })
-      //
-      // d3.min(nested_data_stacked, function(d) {
-      //   return +d.key
-      // })
-
-      // console.log(d3.range(d3.min(nested_data_stacked, function(d) {
-      //   return +d.key
-      // }), d3.max(nested_data_stacked, function(d) {
-      //   return +d.key
-      // }) + 1))
-      //
-      // var to_layers = function() {}
-      // var layers = d3.stack().keys(d3.range(d3.min(nested_data_stacked, function(d) {
-      //   return +d.key
-      // }), d3.max(nested_data_stacked, function(d) {
-      //   return +d.key
-      // }) + 1))(nested_data_stacked, function(d) {
-      //   console.log()
-      //   console.log(d)
-      // })
-
-      // console.log(layers)
-      //
-      // d3.select('button').on('click', function() {
-      //   svg.selectAll("rect")
-      //     .data(nested_data_grouped)
-      // })
     });
   </script>
 </body>
