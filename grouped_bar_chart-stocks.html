@@ -44,7 +44,7 @@
           return d.date;
         })
         .rollup(function(x) {
-          return d3.sum(x, function(z) {
+          return d3.mean(x, function(z) {
             return z.price
           })
         })
