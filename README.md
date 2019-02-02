@@ -8,3 +8,5 @@ Visualizations available are:
 - [Grouped bar chart](https://guillaume-lesaine.github.io/vis-centrale_lyon_d3_examples/grouped_bar_chart-stocks.html) of the stock values of Amazon, Apple, IBM and Microsoft from 2000 to 2010.
 
 - [Stacked bar chart](https://guillaume-lesaine.github.io/vis-centrale_lyon_d3_examples/stacked_bar_chart-stocks.html) of the stock values of Amazon, Apple, IBM and Microsoft from 2000 to 2010.
+
+- [Map chart](https://guillaume-lesaine.github.io/vis-centrale_lyon_d3_examples/map_france.html) of the intensity of flue, in France, throughout 2014.
