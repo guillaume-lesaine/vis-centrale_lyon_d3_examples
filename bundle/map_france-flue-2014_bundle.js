@@ -18718,6 +18718,7 @@ Object.defineProperty(exports, "event", {get: function() { return d3Selection.ev
 
 },{"d3-array":1,"d3-axis":2,"d3-brush":3,"d3-chord":4,"d3-collection":5,"d3-color":6,"d3-contour":7,"d3-dispatch":8,"d3-drag":9,"d3-dsv":10,"d3-ease":11,"d3-fetch":12,"d3-force":13,"d3-format":14,"d3-geo":15,"d3-hierarchy":16,"d3-interpolate":17,"d3-path":18,"d3-polygon":19,"d3-quadtree":20,"d3-random":21,"d3-scale":23,"d3-scale-chromatic":22,"d3-selection":24,"d3-shape":25,"d3-time":27,"d3-time-format":26,"d3-timer":28,"d3-transition":29,"d3-voronoi":30,"d3-zoom":31}],33:[function(require,module,exports){
 var d3 = require('d3')
+
 // var margin = {
 //   top: 30,
 //   right: 90,
@@ -18750,6 +18751,9 @@ var monthFormat = d3.timeFormat("%m")
 
 var json_data
 
+var tooltip = d3.select('body').append('div')
+  .attr('class', 'hidden tooltip');
+
 d3.csv("./data/flue_france_2014.csv").then(function(data) {
   var min = 0,
     max = 0
@@ -18781,7 +18785,8 @@ d3.csv("./data/flue_france_2014.csv").then(function(data) {
     })
     .entries(data)
 
-  color.domain([min, max])
+  color.domain([0, max])
+
   d3.json("./data/france_regions.json").then(function(json) {
     d3.select("#map").append("div")
       // .style("float", "left")
@@ -18800,7 +18805,29 @@ d3.csv("./data/flue_france_2014.csv").then(function(data) {
       .data(json.features)
       .enter()
       .append("path")
-      .attr("d", path);
+      .attr("d", path)
+      .attr("stroke", "grey")
+      .attr("stroke-width", "0.5")
+      .on('mousemove', function(d) {
+        console.log(d)
+        var mouse = d3.mouse(d3.select("#svg_map").node()).map(function(d) {
+          return parseInt(d);
+        });
+        if ("value" in d.properties === true) {
+          tooltip.classed('hidden', false)
+            .attr('style', 'left:' + (mouse[0] + 25) +
+              'px; top:' + (mouse[1] + 120) + 'px')
+            .html(d.properties.nom + "<br>I = " + d.properties.value[0]);
+        } else {
+          tooltip.classed('hidden', false)
+            .attr('style', 'left:' + (mouse[0] + 95) +
+              'px; top:' + (mouse[1] + 130) + 'px')
+            .html("NA");
+        }
+      })
+      .on('mouseout', function() {
+        tooltip.classed('hidden', true);
+      });
 
     for (var i = 0; i < json.features.length; i++) {
       for (var j = 0; j < nested_data.length; j++) {
@@ -18816,7 +18843,7 @@ d3.csv("./data/flue_france_2014.csv").then(function(data) {
         if ("value" in d.properties === true) {
           var c = color(d.properties.value[0]);
         } else {
-          var c = "blue"
+          var c = "grey"
         }
         return c
       });
@@ -18831,10 +18858,31 @@ var update_map = function(m) {
       if ("value" in d.properties === true) {
         var c = color(d.properties.value[m]);
       } else {
-        var c = "blue"
+        var c = "grey"
       }
       return c
+    })
+    .on('mousemove', function(d) {
+      console.log(d)
+      var mouse = d3.mouse(d3.select("#svg_map").node()).map(function(d) {
+        return parseInt(d);
+      });
+      if ("value" in d.properties === true) {
+        tooltip.classed('hidden', false)
+          .attr('style', 'left:' + (mouse[0] + 15) +
+            'px; top:' + (mouse[1] + 120) + 'px')
+          .html(d.properties.nom + "<br>I = " + d.properties.value[m]);
+      } else {
+        tooltip.classed('hidden', false)
+          .attr('style', 'left:' + (mouse[0] + 95) +
+            'px; top:' + (mouse[1] + 130) + 'px')
+          .html("NA");
+      }
+    })
+    .on('mouseout', function() {
+      tooltip.classed('hidden', true);
     });
+
 }
 
 d3.select("#slider_range")

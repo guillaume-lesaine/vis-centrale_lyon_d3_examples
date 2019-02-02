@@ -1,4 +1,5 @@
 var d3 = require('d3')
+
 // var margin = {
 //   top: 30,
 //   right: 90,
@@ -31,6 +32,9 @@ var monthFormat = d3.timeFormat("%m")
 
 var json_data
 
+var tooltip = d3.select('body').append('div')
+  .attr('class', 'hidden tooltip');
+
 d3.csv("./data/flue_france_2014.csv").then(function(data) {
   var min = 0,
     max = 0
@@ -62,7 +66,8 @@ d3.csv("./data/flue_france_2014.csv").then(function(data) {
     })
     .entries(data)
 
-  color.domain([min, max])
+  color.domain([0, max])
+
   d3.json("./data/france_regions.json").then(function(json) {
     d3.select("#map").append("div")
       // .style("float", "left")
@@ -81,7 +86,29 @@ d3.csv("./data/flue_france_2014.csv").then(function(data) {
       .data(json.features)
       .enter()
       .append("path")
-      .attr("d", path);
+      .attr("d", path)
+      .attr("stroke", "grey")
+      .attr("stroke-width", "0.5")
+      .on('mousemove', function(d) {
+        console.log(d)
+        var mouse = d3.mouse(d3.select("#svg_map").node()).map(function(d) {
+          return parseInt(d);
+        });
+        if ("value" in d.properties === true) {
+          tooltip.classed('hidden', false)
+            .attr('style', 'left:' + (mouse[0] + 25) +
+              'px; top:' + (mouse[1] + 120) + 'px')
+            .html(d.properties.nom + "<br>I = " + d.properties.value[0]);
+        } else {
+          tooltip.classed('hidden', false)
+            .attr('style', 'left:' + (mouse[0] + 95) +
+              'px; top:' + (mouse[1] + 130) + 'px')
+            .html("NA");
+        }
+      })
+      .on('mouseout', function() {
+        tooltip.classed('hidden', true);
+      });
 
     for (var i = 0; i < json.features.length; i++) {
       for (var j = 0; j < nested_data.length; j++) {
@@ -97,7 +124,7 @@ d3.csv("./data/flue_france_2014.csv").then(function(data) {
         if ("value" in d.properties === true) {
           var c = color(d.properties.value[0]);
         } else {
-          var c = "blue"
+          var c = "grey"
         }
         return c
       });
@@ -112,10 +139,31 @@ var update_map = function(m) {
       if ("value" in d.properties === true) {
         var c = color(d.properties.value[m]);
       } else {
-        var c = "blue"
+        var c = "grey"
       }
       return c
+    })
+    .on('mousemove', function(d) {
+      console.log(d)
+      var mouse = d3.mouse(d3.select("#svg_map").node()).map(function(d) {
+        return parseInt(d);
+      });
+      if ("value" in d.properties === true) {
+        tooltip.classed('hidden', false)
+          .attr('style', 'left:' + (mouse[0] + 15) +
+            'px; top:' + (mouse[1] + 120) + 'px')
+          .html(d.properties.nom + "<br>I = " + d.properties.value[m]);
+      } else {
+        tooltip.classed('hidden', false)
+          .attr('style', 'left:' + (mouse[0] + 95) +
+            'px; top:' + (mouse[1] + 130) + 'px')
+          .html("NA");
+      }
+    })
+    .on('mouseout', function() {
+      tooltip.classed('hidden', true);
     });
+
 }
 
 d3.select("#slider_range")
