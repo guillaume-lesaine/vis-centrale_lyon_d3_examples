@@ -1,0 +1,23 @@
+{
+  "name": "vis-centrale_lyon_d3_examples",
+  "version": "1.0.0",
+  "description": "This repository gathers D3 visualizations motivated by the [interactive data visualization class](https://github.com/LyonDataViz/MOS5.5-Dataviz) given by [Romain Vuillemot](https://github.com/romsson), during my last year at École Centrale de Lyon.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/guillaume-lesaine/vis-centrale_lyon_d3_examples.git"
+  },
+  "keywords": [],
+  "author": "guillaume-lesaine",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/guillaume-lesaine/vis-centrale_lyon_d3_examples/issues"
+  },
+  "homepage": "https://github.com/guillaume-lesaine/vis-centrale_lyon_d3_examples#readme",
+  "dependencies": {
+    "d3": "^5.8.0"
+  }
+}

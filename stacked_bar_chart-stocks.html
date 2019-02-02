@@ -83,6 +83,8 @@
         return +d.key
       })
 
+      console.log(layers)
+
       svg.append("g").selectAll("g")
         .data(layers)
         .enter().append("g")
